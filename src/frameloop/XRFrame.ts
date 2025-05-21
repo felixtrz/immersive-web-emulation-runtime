@@ -51,6 +51,8 @@ export class XRFrame {
 		animationFrame: boolean;
 		predictedDisplayTime: number;
 		tempMat4: mat4;
+		tempVec3: vec3;
+		tempQuat: quat;
 		detectedPlanes: XRPlaneSet;
 		detectedMeshes: XRMeshSet;
 		trackedAnchors: XRAnchorSet;
@@ -71,6 +73,8 @@ export class XRFrame {
 			animationFrame,
 			predictedDisplayTime,
 			tempMat4: mat4.create(),
+			tempVec3: vec3.create(),
+			tempQuat: quat.create(),
 			detectedPlanes: new XRPlaneSet(),
 			detectedMeshes: new XRMeshSet(),
 			trackedAnchors: session[P_SESSION].frameTrackedAnchors,
@@ -94,9 +98,9 @@ export class XRFrame {
 			);
 		}
 		getOffsetMatrix(this[P_FRAME].tempMat4, space, baseSpace);
-		const position = vec3.create();
+		const position = this[P_FRAME].tempVec3;
 		mat4.getTranslation(position, this[P_FRAME].tempMat4);
-		const orientation = quat.create();
+		const orientation = this[P_FRAME].tempQuat;
 		mat4.getRotation(orientation, this[P_FRAME].tempMat4);
 		return new XRPose(
 			new XRRigidTransform(
