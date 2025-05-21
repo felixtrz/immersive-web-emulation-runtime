@@ -174,6 +174,8 @@ export class XRDevice {
 		globalSpace: GlobalSpace;
 		viewerSpace: XRReferenceSpace;
 		viewSpaces: { [key in XREye]: XRSpace };
+		leftEyeTranslation: vec3;
+		rightEyeTranslation: vec3;
 
 		canvasData?: {
 			canvas: HTMLCanvasElement;
@@ -281,6 +283,8 @@ export class XRDevice {
 			globalSpace,
 			viewerSpace,
 			viewSpaces,
+			leftEyeTranslation: vec3.create(),
+			rightEyeTranslation: vec3.create(),
 			canvasContainer,
 
 			getViewport: (layer: XRWebGLLayer, view: XRView) => {
@@ -315,13 +319,17 @@ export class XRDevice {
 				);
 
 				// update viewSpaces
+				const left = this[P_DEVICE].leftEyeTranslation;
+				vec3.set(left, -this[P_DEVICE].ipd / 2, 0, 0);
 				mat4.fromTranslation(
 					this[P_DEVICE].viewSpaces[XREye.Left][P_SPACE].offsetMatrix,
-					vec3.fromValues(-this[P_DEVICE].ipd / 2, 0, 0),
+					left,
 				);
+				const right = this[P_DEVICE].rightEyeTranslation;
+				vec3.set(right, this[P_DEVICE].ipd / 2, 0, 0);
 				mat4.fromTranslation(
 					this[P_DEVICE].viewSpaces[XREye.Right][P_SPACE].offsetMatrix,
-					vec3.fromValues(this[P_DEVICE].ipd / 2, 0, 0),
+					right,
 				);
 			},
 			onBaseLayerSet: (baseLayer: XRWebGLLayer | null) => {

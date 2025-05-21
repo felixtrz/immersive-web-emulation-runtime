@@ -67,6 +67,10 @@ export class ActionPlayer {
 		viewSpaces: { [key in XREye]: XRSpace };
 		vec3: vec3;
 		quat: quat;
+		tempVec3A: vec3;
+		tempVec3B: vec3;
+		tempQuatA: quat;
+		tempQuatB: quat;
 	};
 
 	constructor(
@@ -107,6 +111,10 @@ export class ActionPlayer {
 			viewSpaces,
 			vec3: vec3.create(),
 			quat: quat.create(),
+			tempVec3A: vec3.create(),
+			tempVec3B: vec3.create(),
+			tempQuatA: quat.create(),
+			tempQuatB: quat.create(),
 		};
 
 		mat4.fromTranslation(
@@ -340,23 +348,21 @@ export class ActionPlayer {
 		nextTransform: number[],
 		alpha: number,
 	) {
-		const f1p = vec3.fromValues(
-			lastTransform[0],
-			lastTransform[1],
-			lastTransform[2],
-		);
-		const f1q = quat.fromValues(
+		const f1p = this[P_ACTION_PLAYER].tempVec3A;
+		const f2p = this[P_ACTION_PLAYER].tempVec3B;
+		const f1q = this[P_ACTION_PLAYER].tempQuatA;
+		const f2q = this[P_ACTION_PLAYER].tempQuatB;
+		vec3.set(f1p, lastTransform[0], lastTransform[1], lastTransform[2]);
+		quat.set(
+			f1q,
 			lastTransform[3],
 			lastTransform[4],
 			lastTransform[5],
 			lastTransform[6],
 		);
-		const f2p = vec3.fromValues(
-			nextTransform[0],
-			nextTransform[1],
-			nextTransform[2],
-		);
-		const f2q = quat.fromValues(
+		vec3.set(f2p, nextTransform[0], nextTransform[1], nextTransform[2]);
+		quat.set(
+			f2q,
 			nextTransform[3],
 			nextTransform[4],
 			nextTransform[5],
@@ -392,6 +398,11 @@ export class ActionPlayer {
 	}
 }
 
+const _mergeF1p = vec3.create();
+const _mergeF2p = vec3.create();
+const _mergeF1q = quat.create();
+const _mergeF2q = quat.create();
+
 export const mergeTransform = (
 	f1: number[],
 	f2: number[],
@@ -399,10 +410,14 @@ export const mergeTransform = (
 	position: vec3,
 	quaternion: quat,
 ) => {
-	const f1p = vec3.fromValues(f1[0], f1[1], f1[2]);
-	const f1q = quat.fromValues(f1[3], f1[4], f1[5], f1[6]);
-	const f2p = vec3.fromValues(f2[0], f2[1], f2[2]);
-	const f2q = quat.fromValues(f2[3], f2[4], f2[5], f2[6]);
+	vec3.set(_mergeF1p, f1[0], f1[1], f1[2]);
+	quat.set(_mergeF1q, f1[3], f1[4], f1[5], f1[6]);
+	vec3.set(_mergeF2p, f2[0], f2[1], f2[2]);
+	quat.set(_mergeF2q, f2[3], f2[4], f2[5], f2[6]);
+	const f1p = _mergeF1p;
+	const f1q = _mergeF1q;
+	const f2p = _mergeF2p;
+	const f2q = _mergeF2q;
 	vec3.lerp(position, f1p, f2p, alpha);
 	quat.slerp(quaternion, f1q, f2q, alpha);
 };
