@@ -36,6 +36,7 @@ class PolyfillDOMPointReadOnly {
 	}
 }
 
+// istanbul ignore next -- environment specific
 export const DOMPointReadOnly =
 	typeof globalThis.DOMPointReadOnly !== 'undefined'
 		? globalThis.DOMPointReadOnly
